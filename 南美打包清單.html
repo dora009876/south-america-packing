@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>南美打包清單</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF6EC;
+    --card:#FFFFFF;
+    --ink:#2B2620;
+    --sub:#7A7264;
+    --line:#E7DFCF;
+    --green:#42604A;
+    --green-l:#DCE7DD;
+    --amber:#B5731E;
+    --amber-l:#F3E3C8;
+    --blue:#2F5C74;
+    --blue-l:#D9E6EA;
+    --coral:#B0492F;
+    --coral-l:#F1DCD3;
+    --plum:#6B4A6E;
+    --plum-l:#E7DCE8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Work Sans',sans-serif;
+    padding-bottom:150px;
+  }
+  header{ padding:28px 20px 8px; }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:24px;
+    margin:0 0 4px;
+  }
+  .sub{ color:var(--sub); font-size:13px; margin:0; }
+  .overall{
+    margin:14px 20px 4px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .overall .num{ font-family:'Fraunces',serif; font-size:22px; font-weight:600; }
+  .overall .bar{
+    flex:1; height:6px; background:var(--line);
+    border-radius:4px; margin:0 14px; overflow:hidden;
+  }
+  .overall .bar-fill{
+    height:100%; background:var(--green); width:0%;
+    transition:width .4s ease;
+  }
+  .optional-link{
+    margin:6px 20px 0; font-size:12px; color:var(--amber);
+    background:none; border:none; text-decoration:underline;
+    padding:0; display:none; font-family:inherit;
+  }
+  .optional-link.show{ display:block; }
+  main{ padding:8px 20px 0; }
+  .category{ margin:22px 0; }
+  .cat-head{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .cat-dot{ width:9px;height:9px;border-radius:50%; flex-shrink:0; }
+  .cat-title{ font-family:'Fraunces',serif; font-weight:600; font-size:16px; }
+  .cat-count{ margin-left:auto; font-size:12px; color:var(--sub); }
+  ul.items{
+    list-style:none; margin:0; padding:0;
+    background:var(--card); border:1px solid var(--line);
+    border-radius:14px; overflow:hidden;
+  }
+  li.item{
+    display:flex; align-items:center; gap:10px;
+    padding:12px 14px; border-bottom:1px solid var(--line);
+  }
+  .box{
+    width:22px;height:22px; border-radius:7px;
+    border:1.5px solid var(--sub); flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--card); cursor:pointer;
+  }
+  .box svg{ width:13px;height:13px; opacity:0; transition:opacity .15s; stroke:#fff; }
+  li.item.checked .box{ background:var(--zonecolor,var(--green)); border-color:var(--zonecolor,var(--green)); }
+  li.item.checked .box svg{ opacity:1; }
+  li.item.checked .label{ color:var(--sub); text-decoration:line-through; }
+  li.item.optional .box{ border-style:dashed; }
+  li.item.optional .label{ color:var(--sub); font-style:italic; }
+  li.item.optional.checked .label{ text-decoration:line-through italic; }
+  .label{ font-size:15px; line-height:1.4; flex:1; cursor:text; }
+  .label-edit{
+    flex:1; font-size:15px; font-family:inherit; color:var(--ink);
+    border:1px solid var(--ink); border-radius:6px;
+    padding:4px 6px; background:var(--card);
+  }
+  .opt-toggle{
+    width:26px;height:26px; flex-shrink:0; border:none; background:none;
+    color:var(--line); display:flex;align-items:center;justify-content:center;
+    cursor:pointer; border-radius:7px;
+  }
+  .opt-toggle.on{ color:var(--amber); }
+  .opt-toggle svg{ width:15px;height:15px; }
+  .opt-toggle:active{ background:var(--line); }
+  .qty{
+    width:38px; font-size:13px; text-align:center;
+    border:1px solid var(--line); border-radius:7px;
+    padding:4px 2px; color:var(--sub); background:var(--bg);
+    flex-shrink:0;
+  }
+  .del{
+    width:26px;height:26px; flex-shrink:0; border:none; background:none;
+    color:var(--sub); display:flex;align-items:center;justify-content:center;
+    cursor:pointer; border-radius:7px;
+  }
+  .del:active{ background:var(--line); }
+  .del svg{ width:15px;height:15px; }
+  .add-row{
+    display:flex; align-items:center; gap:8px;
+    padding:10px 14px; background:var(--bg);
+  }
+  .add-row input[type=text]{
+    flex:1; border:1px solid var(--line); border-radius:8px;
+    padding:8px 10px; font-size:14px; font-family:inherit;
+    background:var(--card); color:var(--ink);
+  }
+  .add-row input[type=text]::placeholder{ color:var(--sub); }
+  .add-row input[type=number]{
+    width:44px; border:1px solid var(--line); border-radius:8px;
+    padding:8px 4px; font-size:14px; text-align:center;
+    background:var(--card); color:var(--ink);
+  }
+  .add-btn{
+    border:none; background:var(--ink); color:#fff;
+    width:34px;height:34px; border-radius:8px; flex-shrink:0;
+    font-size:18px; line-height:1; cursor:pointer;
+  }
+  footer{
+    position:fixed; left:0;right:0;bottom:0;
+    background:var(--card); border-top:1px solid var(--line);
+    padding:12px 16px 14px;
+    max-height:70vh;
+    display:flex; flex-direction:column;
+  }
+  .pack-row{ display:flex; align-items:center; gap:10px; }
+  .zone{ flex:1; text-align:center; background:none; border:none; padding:0; font-family:inherit; }
+  .zone-badge{
+    width:38px;height:38px; margin:0 auto 3px;
+    border-radius:11px; display:flex;align-items:center;justify-content:center;
+    font-size:12px; font-weight:600; color:#fff;
+    background:var(--line); transition:background .3s ease;
+  }
+  .zone-badge.open{ outline:2px solid var(--ink); outline-offset:2px; }
+  .zone-label{ font-size:10px; color:var(--sub); }
+  .reset-btn{
+    border:none; background:none; color:var(--sub);
+    font-size:11px; text-decoration:underline;
+    padding:8px 0 0; width:100%; text-align:center;
+  }
+  #panel{
+    display:none; overflow-y:auto; margin-top:10px;
+    border-top:1px solid var(--line); padding-top:10px;
+  }
+  #panel.open{ display:block; }
+  #panel .panel-title{
+    font-size:12px; color:var(--sub); margin:0 0 8px;
+  }
+  #panel .category{ margin:0 0 16px; }
+  #panel .cat-title{ font-size:14px; }
+  .fly-dot{
+    position:fixed; width:9px;height:9px; border-radius:50%;
+    pointer-events:none; z-index:999;
+    transition:transform .55s cubic-bezier(.4,0,.2,1), opacity .55s ease;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>南美打包清單</h1>
+  <p class="sub">點口袋圖示可展開看裡面有什麼、也能新增或刪除項目</p>
+</header>
+
+<div class="overall">
+  <div class="num" id="overallNum">0/0</div>
+  <div class="bar"><div class="bar-fill" id="overallBar"></div></div>
+  <div class="sub" id="overallPct">0%</div>
+</div>
+<button class="optional-link" id="optionalLink"></button>
+
+<main id="main"></main>
+
+<footer>
+  <div class="pack-row" id="zoneRow"></div>
+  <div id="panel"></div>
+  <button class="reset-btn" id="resetBtn">重設所有勾選</button>
+</footer>
+
+<script>
+const ZONES = {
+  documents: {name:'證件金錢', color:'#B5731E', light:'#F3E3C8'},
+  clothing:  {name:'衣物鞋子', color:'#42604A', light:'#DCE7DD'},
+  tech:      {name:'3C防盜',   color:'#2F5C74', light:'#D9E6EA'},
+  health:    {name:'藥品盥洗', color:'#B0492F', light:'#F1DCD3'},
+  misc:      {name:'其他雜項', color:'#6B4A6E', light:'#E7DCE8'}
+};
+
+const CATS_META = [
+ {id:'c_docs',   name:'證件（最重要）', zone:'documents'},
+ {id:'c_money',  name:'金錢', zone:'documents'},
+ {id:'c_phone',  name:'手機通訊', zone:'tech'},
+ {id:'c_3c',     name:'3C', zone:'tech'},
+ {id:'c_theft',  name:'防盜', zone:'tech'},
+ {id:'c_summer', name:'夏裝', zone:'clothing'},
+ {id:'c_winter', name:'冬裝', zone:'clothing'},
+ {id:'c_under',  name:'貼身衣物', zone:'clothing'},
+ {id:'c_shoes',  name:'鞋子與配件', zone:'clothing'},
+ {id:'c_wash',   name:'盥洗用品', zone:'health'},
+ {id:'c_med',    name:'藥品', zone:'health'},
+ {id:'c_sun',    name:'防曬', zone:'health'},
+ {id:'c_bag',    name:'背包收納', zone:'misc'},
+ {id:'c_daily',  name:'生活用品', zone:'misc'},
+ {id:'c_rain',   name:'雨季用品', zone:'misc'},
+ {id:'c_prep',   name:'出發前線上準備', zone:'misc'},
+ {id:'c_todo',   name:'專屬待辦', zone:'misc'}
+];
+
+const SEED = {
+ c_docs: ['護照正本（有效期6個月以上）','護照影本|3','護照電子檔','護照照片電子檔','證件照|3',
+   '身分證','健保卡（留台灣）','巴西簽證','玻利維亞簽證','阿根廷簽證',
+   '其他國家簽證再確認','保單電子檔','富邦旅平險','所有住宿訂單','行程PDF',
+   '緊急聯絡人資料','機票','黃熱病疫苗證明'],
+ c_money: ['信用卡（主要）','備用信用卡（分開放）','國泰卡','台新外幣卡','台新Richart',
+   '郵局金融卡','中信金融卡','台幣現金','美元現金約1200 USD（分開放）'],
+ c_phone: ['iPhone','行動電源','快充頭','Lightning線','USB-C線','當地SIM卡','遠傳eSIM','WhatsApp設定'],
+ c_3c: ['筆電','筆電充電器','萬國轉接頭'],
+ c_theft: ['備用手機','手機防盜繩','小鎖','胸前包','防盜包','AirTag（行李）','AirTag（隨身包）'],
+ c_summer: ['長袖排汗衣|2','短褲|2','長褲|2','登山褲|1','短袖上衣（數量待確認5或6）','睡褲'],
+ c_winter: ['雨衣','防風外套','羽絨外套','保暖褲','發熱褲','發熱衣|2'],
+ c_under: ['襪子（數量待確認5或6雙）','內衣|4','內褲|6','護墊'],
+ c_shoes: ['運動鞋','涼鞋','室內拖鞋','擋沙面罩','手套','墨鏡','圍巾','保暖帽'],
+ c_wash: ['毛巾','止汗劑','牙刷','牙膏','牙線棒','洗面乳','潤髮乳','指甲剪／指甲刀','洗鼻器','洗鼻鹽'],
+ c_med: ['OK繃','酒精棉片','B群','魚油','眼藥水','個人處方藥','暈車藥','感冒藥（龍角散）',
+   '止瀉藥','腸胃藥','止痛藥（普拿疼）','小鳥咳嗽藥粉'],
+ c_sun: ['SPF50防曬乳','護唇膏','防蚊液'],
+ c_bag: ['大背包／行李箱','日用小背包','收納袋','夾鏈袋','垃圾袋','壓縮袋'],
+ c_daily: ['環保餐具','濕紙巾','Ziplock袋','衛生紙','畫畫工具'],
+ c_rain: ['背包雨套','防水袋'],
+ c_prep: ['下載離線地圖','Google Translate離線包','西文離線包','Uber App','Cabify App',
+   '雲端備份所有證件','銀行開通海外交易','信用卡開通海外刷卡','eSIM購買'],
+ c_todo: ['南美保險資料確認','巴西簽證文件準備','ETF／定存安排確認','台灣帳戶資金確認',
+   '家人緊急聯絡資訊留存','Machu Picchu門票（10/9）','貓咪照顧交接完成']
+};
+
+function buildSeedItems(){
+  let id = 0;
+  const items = [];
+  CATS_META.forEach(cat => {
+    (SEED[cat.id] || []).forEach(raw => {
+      const parts = raw.split('|');
+      items.push({
+        id: 'it' + (id++),
+        catId: cat.id,
+        label: parts[0],
+        qty: parts[1] ? parts[1] : '',
+        checked: false,
+        optional: false
+      });
+    });
+  });
+  return items;
+}
+
+let items = [];
+let openZone = null;
+
+async function loadItems(){
+  try{
+    const r = await window.storage.get('packing-items-v2', false);
+    if(r && r.value){ items = JSON.parse(r.value); return; }
+  }catch(e){}
+  items = buildSeedItems();
+  await saveItems();
+}
+async function saveItems(){
+  try{ await window.storage.set('packing-items-v2', JSON.stringify(items), false); }catch(e){}
+}
+
+function catMetaOf(catId){ return CATS_META.find(c => c.id === catId); }
+
+function checkIcon(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+}
+function trashIcon(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>';
+}
+function tagIcon(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41L11 3.83A2 2 0 0 0 9.59 3.17L4 3a1 1 0 0 0-1 1l.17 5.59a2 2 0 0 0 .66 1.41l9.58 9.58a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.82z"></path><circle cx="8.5" cy="8.5" r="1.5"></circle></svg>';
+}
+
+function buildCategoryBlock(cat, opts){
+  opts = opts || {};
+  const zone = ZONES[cat.zone];
+  let catItems = items.filter(it => it.catId === cat.id);
+  if(opts.optionalOnly) catItems = catItems.filter(it => it.optional);
+  const requiredItems = catItems.filter(it => !it.optional);
+  const done = requiredItems.filter(it => it.checked).length;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'category';
+  const countLabel = opts.optionalOnly
+    ? (catItems.filter(it => it.checked).length + '/' + catItems.length)
+    : (done + '/' + requiredItems.length);
+  wrap.innerHTML = `
+    <div class="cat-head">
+      <span class="cat-dot" style="background:${zone.color}"></span>
+      <span class="cat-title">${cat.name}</span>
+      <span class="cat-count">${countLabel}</span>
+    </div>
+  `;
+  const ul = document.createElement('ul');
+  ul.className = 'items';
+
+  catItems.slice().sort((a,b) => (a.checked === b.checked) ? 0 : (a.checked ? 1 : -1)).forEach(it => {
+    const li = document.createElement('li');
+    li.className = 'item' + (it.checked ? ' checked' : '') + (it.optional ? ' optional' : '');
+    li.style.setProperty('--zonecolor', zone.color);
+    li.innerHTML = `
+      <div class="box">${checkIcon()}</div>
+      <div class="label" tabindex="0">${it.label}</div>
+      <input class="qty" type="text" placeholder="數量" value="${it.qty || ''}">
+      <button class="opt-toggle${it.optional ? ' on':''}" aria-label="標記斟酌中">${tagIcon()}</button>
+      <button class="del" aria-label="刪除">${trashIcon()}</button>
+    `;
+    const box = li.querySelector('.box');
+    const label = li.querySelector('.label');
+    const qtyInput = li.querySelector('.qty');
+    const delBtn = li.querySelector('.del');
+    const optBtn = li.querySelector('.opt-toggle');
+
+    box.addEventListener('click', () => onToggle(it.id, li, cat.zone));
+
+    label.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'label-edit';
+      input.value = it.label;
+      label.replaceWith(input);
+      input.focus();
+      input.select();
+      const commit = () => {
+        const val = input.value.trim();
+        if(val) it.label = val;
+        saveItems();
+        renderAll();
+      };
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') input.blur();
+        if(e.key === 'Escape'){ input.value = it.label; input.blur(); }
+      });
+    });
+
+    qtyInput.addEventListener('change', () => {
+      it.qty = qtyInput.value;
+      saveItems();
+    });
+    optBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      it.optional = !it.optional;
+      saveItems();
+      renderAll();
+    });
+    delBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      items = items.filter(x => x.id !== it.id);
+      saveItems();
+      renderAll();
+    });
+    ul.appendChild(li);
+  });
+
+  if(!opts.hideAdd){
+    const addRow = document.createElement('div');
+    addRow.className = 'add-row';
+    addRow.innerHTML = `
+      <input type="text" placeholder="新增項目">
+      <input type="text" placeholder="數量" style="width:44px">
+      <button class="add-btn" aria-label="新增">＋</button>
+    `;
+    const textInput = addRow.querySelector('input[type=text]');
+    const qtyAddInput = addRow.querySelectorAll('input[type=text]')[1];
+    const addBtn = addRow.querySelector('.add-btn');
+    const doAdd = () => {
+      const val = textInput.value.trim();
+      if(!val) return;
+      items.push({
+        id: 'it' + Date.now() + Math.floor(Math.random()*1000),
+        catId: cat.id,
+        label: val,
+        qty: qtyAddInput.value.trim(),
+        checked: false,
+        optional: false
+      });
+      textInput.value = '';
+      qtyAddInput.value = '';
+      saveItems();
+      renderAll();
+    };
+    addBtn.addEventListener('click', doAdd);
+    textInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') doAdd(); });
+    ul.appendChild(addRow);
+  }
+
+  wrap.appendChild(ul);
+  return wrap;
+}
+
+function renderMain(){
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  CATS_META.forEach(cat => main.appendChild(buildCategoryBlock(cat, {})));
+}
+
+function renderZoneRow(){
+  const row = document.getElementById('zoneRow');
+  row.innerHTML = '';
+  Object.keys(ZONES).forEach(key => {
+    const zone = ZONES[key];
+    const zoneItems = items.filter(it => catMetaOf(it.catId).zone === key && !it.optional);
+    const done = zoneItems.filter(it => it.checked).length;
+    const pct = zoneItems.length ? Math.round(done/zoneItems.length*100) : 0;
+    const btn = document.createElement('button');
+    btn.className = 'zone';
+    btn.id = 'zone-' + key;
+    btn.innerHTML = `
+      <div class="zone-badge${openZone===key ? ' open':''}" style="background:linear-gradient(0deg, ${zone.color} ${pct}%, ${zone.light} ${pct}%)">${done}/${zoneItems.length}</div>
+      <div class="zone-label">${zone.name}</div>
+    `;
+    btn.addEventListener('click', () => {
+      openZone = (openZone === key) ? null : key;
+      renderPanel();
+      renderZoneRow();
+    });
+    row.appendChild(btn);
+  });
+}
+
+function renderPanel(){
+  const panel = document.getElementById('panel');
+  if(!openZone){
+    panel.classList.remove('open');
+    panel.innerHTML = '';
+    return;
+  }
+  panel.classList.add('open');
+  panel.innerHTML = '';
+  const title = document.createElement('div');
+  title.className = 'panel-title';
+
+  if(openZone === 'OPTIONAL'){
+    title.textContent = '斟酌中的項目';
+    panel.appendChild(title);
+    const catsWithOptional = CATS_META.filter(c => items.some(it => it.catId === c.id && it.optional));
+    if(catsWithOptional.length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'sub';
+      empty.textContent = '目前沒有標記斟酌中的項目';
+      panel.appendChild(empty);
+    }
+    catsWithOptional.forEach(cat => {
+      panel.appendChild(buildCategoryBlock(cat, {optionalOnly:true, hideAdd:true}));
+    });
+    return;
+  }
+
+  title.textContent = ZONES[openZone].name + '口袋裡的東西';
+  panel.appendChild(title);
+  CATS_META.filter(c => c.zone === openZone).forEach(cat => {
+    panel.appendChild(buildCategoryBlock(cat, {}));
+  });
+}
+
+function renderOverall(){
+  const required = items.filter(it => !it.optional);
+  const done = required.filter(it => it.checked).length;
+  const total = required.length;
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('overallNum').textContent = done + '/' + total;
+  document.getElementById('overallBar').style.width = pct + '%';
+  document.getElementById('overallPct').textContent = pct + '%';
+
+  const optionalCount = items.filter(it => it.optional).length;
+  const link = document.getElementById('optionalLink');
+  if(optionalCount > 0){
+    link.classList.add('show');
+    link.textContent = '另外還有 ' + optionalCount + ' 項斟酌中 · 查看全部';
+  } else {
+    link.classList.remove('show');
+  }
+}
+
+function flyToZone(startEl, zoneKey){
+  const startRect = startEl.getBoundingClientRect();
+  const zoneEl = document.getElementById('zone-' + zoneKey);
+  if(!zoneEl) return;
+  const endRect = zoneEl.getBoundingClientRect();
+  const dot = document.createElement('div');
+  dot.className = 'fly-dot';
+  dot.style.background = ZONES[zoneKey].color;
+  dot.style.left = (startRect.left + startRect.width/2 - 4.5) + 'px';
+  dot.style.top = (startRect.top + startRect.height/2 - 4.5) + 'px';
+  dot.style.opacity = '1';
+  document.body.appendChild(dot);
+  requestAnimationFrame(() => {
+    const dx = (endRect.left + endRect.width/2) - (startRect.left + startRect.width/2);
+    const dy = (endRect.top + endRect.height/2) - (startRect.top + startRect.height/2);
+    dot.style.transform = `translate(${dx}px, ${dy}px) scale(0.4)`;
+    dot.style.opacity = '0';
+  });
+  setTimeout(() => dot.remove(), 600);
+}
+
+function onToggle(itemId, li, zoneKey){
+  const it = items.find(x => x.id === itemId);
+  it.checked = !it.checked;
+  li.classList.toggle('checked', it.checked);
+  if(it.checked) flyToZone(li.querySelector('.box'), zoneKey);
+  saveItems();
+  setTimeout(() => { renderZoneRow(); renderOverall(); refreshCounts(); }, it.checked ? 500 : 0);
+}
+
+function refreshCounts(){
+  document.querySelectorAll('.category').forEach(block => {
+    const ul = block.querySelector('ul.items');
+    if(!ul) return;
+  });
+  renderMain();
+  if(openZone) renderPanel();
+}
+
+document.getElementById('optionalLink').addEventListener('click', () => {
+  openZone = (openZone === 'OPTIONAL') ? null : 'OPTIONAL';
+  renderPanel();
+  renderZoneRow();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  items.forEach(it => it.checked = false);
+  saveItems();
+  renderAll();
+});
+
+function renderAll(){
+  renderMain();
+  renderZoneRow();
+  renderPanel();
+  renderOverall();
+}
+
+(async function init(){
+  await loadItems();
+  renderAll();
+})();
+</script>
+</body>
+</html>
